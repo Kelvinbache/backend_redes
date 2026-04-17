@@ -1,0 +1,62 @@
+{
+  "osi_model": {
+    "title": "Modelo OSI (Open Systems Interconnection)",
+    "definition": "Modelo de referencia creado por la ISO que estandariza las funciones de comunicación en red en 7 capas conceptuales para facilitar el diagnóstico y el diseño de sistemas.",
+    "general_analogy": "Imagina dos empresas enviando cartas: desde el director que la escribe (Aplicación) hasta el camión y la carretera (Física).",
+    "layers": [
+      {
+        "level": 7,
+        "name": "Aplicación",
+        "function": "Interfaz entre la red y el software; provee servicios de red a las aplicaciones de usuario.",
+        "pdu": "Datos",
+        "examples": ["HTTP/HTTPS", "FTP", "SMTP", "DNS", "SSH"]
+      },
+      {
+        "level": 6,
+        "name": "Presentación",
+        "function": "Traducción, cifrado y compresión de datos para asegurar que la capa de aplicación los comprenda.",
+        "pdu": "Datos",
+        "examples": ["SSL/TLS", "JPEG", "GIF", "ASCII"]
+      },
+      {
+        "level": 5,
+        "name": "Sesión",
+        "function": "Gestión de diálogos, mantenimiento y finalización de conexiones entre aplicaciones.",
+        "pdu": "Datos",
+        "examples": ["NetBIOS", "RPC"]
+      },
+      {
+        "level": 4,
+        "name": "Transporte",
+        "function": "Comunicación de extremo a extremo, control de flujo, segmentación y corrección de errores.",
+        "pdu": "Segmento (TCP) / Datagrama (UDP)",
+        "examples": ["TCP", "UDP"]
+      },
+      {
+        "level": 3,
+        "name": "Red",
+        "function": "Direccionamiento lógico y determinación de la mejor ruta (enrutamiento) para los paquetes.",
+        "pdu": "Paquete",
+        "examples": ["IP (IPv4/v6)", "ICMP", "Routers"]
+      },
+      {
+        "level": 2,
+        "name": "Enlace de Datos",
+        "function": "Transferencia fiable de datos a través de un enlace físico mediante tramas y detección de errores.",
+        "pdu": "Trama",
+        "examples": ["Ethernet", "MAC", "Switch", "Bridge"]
+      },
+      {
+        "level": 1,
+        "name": "Física",
+        "function": "Transmisión de bits (0s y 1s) a través de medios físicos (cables, fibra, aire).",
+        "pdu": "Bits",
+        "examples": ["Cable de red", "Fiber óptica", "Hub", "Repetidor"]
+      }
+    ],
+    "tcp_ip_comparison": {
+      "note": "El Modelo OSI es teórico; Internet utiliza TCP/IP.",
+      "key_difference": "TCP/IP agrupa las capas de Sesión, Presentación y Aplicación del OSI en una sola capa de Aplicación."
+    }
+  }
+}

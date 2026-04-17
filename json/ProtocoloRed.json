@@ -1,0 +1,54 @@
+{
+  "network_protocols": {
+    "title": "Protocolos de Red",
+    "definition": "Conjunto de reglas, estándares y formatos acordados que permiten que dos o más dispositivos se comuniquen entre sí en una red, funcionando como un idioma común para el intercambio de información estructurada.",
+    "types": [
+      {
+        "category": "Comunicaciones de Red",
+        "description": "Núcleo de la transmisión de datos, encargados de que la información viaje del origen al destino.",
+        "examples": ["IP", "TCP", "UDP"]
+      },
+      {
+        "category": "Seguridad de Red",
+        "description": "Garantizan la confidencialidad, integridad y autenticidad de los datos mediante cifrado.",
+        "examples": ["TLS/SSL", "SSH", "IPsec"]
+      },
+      {
+        "category": "Enrutamiento",
+        "description": "Funcionan como el GPS de la red, permitiendo a los routers descubrir la mejor ruta hacia un destino.",
+        "examples": ["OSPF", "BGP", "RIP"]
+      },
+      {
+        "category": "Descubrimiento de Servicios",
+        "description": "Permiten encontrar automáticamente servicios y dispositivos en una red local sin configuración manual.",
+        "examples": ["DNS", "ARP", "DHCP"]
+      }
+    ],
+    "functions": [
+      {
+        "name": "Direccionamiento",
+        "detail": "Identificación única de origen y destino mediante direcciones IP y MAC."
+      },
+      {
+        "name": "Fiabilidad",
+        "detail": "Asegura que los datos lleguen completos; si se pierden, se detectan y retransmiten (Ej. TCP)."
+      },
+      {
+        "name": "Control de Flujo",
+        "detail": "Evita el colapso del receptor gestionando la velocidad de envío mediante mecanismos como ventanas deslizantes."
+      },
+      {
+        "name": "Secuencia",
+        "detail": "Numeración de paquetes para reordenarlos correctamente en el destino si llegan en desorden."
+      },
+      {
+        "name": "Detección de Errores",
+        "detail": "Uso de valores matemáticos (checksum) para verificar que los datos no se corrompieron durante el viaje."
+      },
+      {
+        "name": "Application Interface",
+        "detail": "Puertas o APIs (como Berkeley Sockets) que permiten a los programas de usuario acceder a los servicios de red."
+      }
+    ]
+  }
+}
