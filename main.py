@@ -1,4 +1,5 @@
 import uvicorn
+import os
 import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
@@ -288,3 +289,7 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "redes-api"}
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
