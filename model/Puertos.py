@@ -74,7 +74,7 @@ path = ""
 for i in range(len(split_path)):
     path += split_path[i] + "/"
 
-path_joint = os.path.join(path,"backend_redes", "json", "Puertos.json")
+path_joint = os.path.join(path, "json", "Puertos.json")
 
 # Cargar el JSON
 json_path = pathlib.Path(path_joint).read_text(encoding='utf-8')
