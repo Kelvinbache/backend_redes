@@ -3,119 +3,235 @@ import os
 import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
-from typing import List, Optional
-from model.Protocolos_de_Red import ProtocoloRedCompleto, ProtocoloRed_Type, ProtocoloRed_Function, NetworkProtocols
-from model.OSI import OsiModelCompleto, OsiLayer, TCPIPComparison
-from model.Protocolos_de_Red import model_completo as protocoloRed
-from model.OSI import modelo_osi
+from typing import List, Optional, Dict, Any
+from model.Puertos import ( 
+    RedesInvestigacionCompleta,
+    PuertoRed,
+    Socket,
+    IEE8023,
+    IEE80211,
+    TransmissionMethod,
+    modelos  
+)
 
 
+# 1. Puertos de Red
 @strawberry.type
-class GraphQLProtocoloRed_Type:
-    category: str
+class GraphQLPuertoClasificacion:
+    type: str
     description: str
+    range: Optional[str] = None
     examples: List[str]
 
 @strawberry.type
-class GraphQLProtocoloRed_Function:
-    name: str
-    detail: str
-
-@strawberry.type
-class GraphQLNetworkProtocols:
-    title: str
-    definition: str
-    types: List[GraphQLProtocoloRed_Type]
-    functions: List[GraphQLProtocoloRed_Function]
-
-@strawberry.type
-class GraphQLProtocoloRedCompleto:
-    network_protocols: GraphQLNetworkProtocols
-
-@strawberry.type
-class GraphQLOsiLayer:
-    level: int
-    name: str
-    function: str
-    pdu: str
-    examples: List[str]
-
-@strawberry.type
-class GraphQLTCPIPComparison:
-    note: str
-    key_difference: str
-
-@strawberry.type
-class GraphQLOsiModel:
+class GraphQLPuertoRed:
     title: str
     definition: str
     general_analogy: str
-    layers: List[GraphQLOsiLayer]
-    tcp_ip_comparison: GraphQLTCPIPComparison
+    classifications: List[GraphQLPuertoClasificacion]
+
+
+# 2. Sockets
+@strawberry.type
+class GraphQLSocketPropiedad:
+    name: str
+    description: str
 
 @strawberry.type
-class GraphQLOsiModelCompleto:
-    osi_model: GraphQLOsiModel
+class GraphQLSocketTipo:
+    name: str
+    description: str
+    protocol: str
+
+@strawberry.type
+class GraphQLSocket:
+    title: str
+    definition: str
+    general_analogy: str
+    properties: List[GraphQLSocketPropiedad]
+    types: List[GraphQLSocketTipo]
 
 
-def convert_protocolo_to_graphql(protocolo_data: ProtocoloRedCompleto) -> GraphQLProtocoloRedCompleto:
-    """Convierte el modelo Pydantic a tipo GraphQL"""
-    network_protocols = protocolo_data.network_protocols
-    
+# 3. IEEE 802.3
+@strawberry.type
+class GraphQLIEEE8023Tipo:
+    name: str
+    speed: str
+    medium: str
+    max_distance: str
+
+@strawberry.type
+class GraphQLIEEE8023:
+    title: str
+    definition: str
+    general_analogy: str
+    types: List[GraphQLIEEE8023Tipo]
+    media_types: List[str]
+
+
+# 4. IEEE 802.11
+@strawberry.type
+class GraphQLIEEE80211Generacion:
+    standard: str
+    wi_fi_name: Optional[str]
+    year: str
+    speed: str
+    frequency: str
+    features: Optional[List[str]]
+    status: Optional[str]
+
+@strawberry.type
+class GraphQLIEEE80211Banda:
+    band: str
+    characteristics: str
+
+@strawberry.type
+class GraphQLIEEE80211:
+    title: str
+    definition: str
+    general_analogy: str
+    generations: List[GraphQLIEEE80211Generacion]
+    modulations: List[str]
+    frequency_bands: List[GraphQLIEEE80211Banda]
+
+
+# 5. Métodos de Transmisión
+@strawberry.type
+class GraphQLTransmissionMethod:
+    type: str
+    ratio: str
+    description: str
+    examples: List[str]
+    address_example: str
+
+@strawberry.type
+class GraphQLTransmissionMethods:
+    title: str
+    definition: str
+    general_analogy: str
+    methods: List[GraphQLTransmissionMethod]
+
+
+# Contenedor principal (opcional)
+@strawberry.type
+class GraphQLRedesInvestigacionCompleta:
+    network_ports: GraphQLPuertoRed
+    sockets: GraphQLSocket
+    ieee_802_3: GraphQLIEEE8023
+    ieee_802_11: GraphQLIEEE80211
+    transmission_methods: GraphQLTransmissionMethods
+
+
+# ============ CONVERSORES ============
+
+def convert_puertos_to_graphql(puertos: PuertoRed) -> GraphQLPuertoRed:
+    classifications = [
+        GraphQLPuertoClasificacion(
+            type=c.get("type", ""),
+            description=c.get("description", ""),
+            range=c.get("range"),
+            examples=c.get("examples", [])
+        )
+        for c in puertos.classifications
+    ]
+    return GraphQLPuertoRed(
+        title=puertos.title,
+        definition=puertos.definition,
+        general_analogy=puertos.general_analogy,
+        classifications=classifications
+    )
+
+def convert_sockets_to_graphql(sockets: Socket) -> GraphQLSocket:
+    properties = [
+        GraphQLSocketPropiedad(
+            name=p.get("name", ""),
+            description=p.get("description", "")
+        )
+        for p in sockets.properties
+    ]
     types = [
-        GraphQLProtocoloRed_Type(
-            category=t.category,
-            description=t.description,
-            examples=t.examples
+        GraphQLSocketTipo(
+            name=t.get("name", ""),
+            description=t.get("description", ""),
+            protocol=t.get("protocol", "")
         )
-        for t in network_protocols.types
+        for t in sockets.types
     ]
-    
-    functions = [
-        GraphQLProtocoloRed_Function(
-            name=f.name,
-            detail=f.detail
-        )
-        for f in network_protocols.functions
-    ]
-    
-    return GraphQLProtocoloRedCompleto(
-        network_protocols=GraphQLNetworkProtocols(
-            title=network_protocols.title,
-            definition=network_protocols.definition,
-            types=types,
-            functions=functions
-        )
+    return GraphQLSocket(
+        title=sockets.title,
+        definition=sockets.definition,
+        general_analogy=sockets.general_analogy,
+        properties=properties,
+        types=types
     )
 
-def convert_osi_to_graphql(osi_data: OsiModelCompleto) -> GraphQLOsiModelCompleto:
-    """Convierte el modelo OSI Pydantic a tipo GraphQL"""
-    osi_model = osi_data.osi_model
-    
-    layers = [
-        GraphQLOsiLayer(
-            level=l.level,
-            name=l.name,
-            function=l.function,
-            pdu=l.pdu,
-            examples=l.examples
+def convert_8023_to_graphql(ieee: IEE8023) -> GraphQLIEEE8023:
+    types = [
+        GraphQLIEEE8023Tipo(
+            name=t.get("name", ""),
+            speed=t.get("speed", ""),
+            medium=t.get("medium", ""),
+            max_distance=t.get("max_distance", "")
         )
-        for l in osi_model.layers
+        for t in ieee.types
     ]
-    
-    return GraphQLOsiModelCompleto(
-        osi_model=GraphQLOsiModel(
-            title=osi_model.title,
-            definition=osi_model.definition,
-            general_analogy=osi_model.general_analogy,
-            layers=layers,
-            tcp_ip_comparison=GraphQLTCPIPComparison(
-                note=osi_model.tcp_ip_comparison.note,
-                key_difference=osi_model.tcp_ip_comparison.key_difference
-            )
-        )
+    return GraphQLIEEE8023(
+        title=ieee.title,
+        definition=ieee.definition,
+        general_analogy=ieee.general_analogy,
+        types=types,
+        media_types=ieee.media_types
     )
 
+def convert_80211_to_graphql(ieee11: IEE80211) -> GraphQLIEEE80211:
+    generations = [
+        GraphQLIEEE80211Generacion(
+            standard=g.get("standard", ""),
+            wi_fi_name=g.get("wi_fi_name"),
+            year=str(g.get("year", "")),
+            speed=g.get("speed", ""),
+            frequency=g.get("frequency", ""),
+            features=g.get("features"),
+            status=g.get("status")
+        )
+        for g in ieee11.generations
+    ]
+    frequency_bands = [
+        GraphQLIEEE80211Banda(
+            band=b.get("band", ""),
+            characteristics=b.get("characteristics", "")
+        )
+        for b in ieee11.frequency_bands
+    ]
+    return GraphQLIEEE80211(
+        title=ieee11.title,
+        definition=ieee11.definition,
+        general_analogy=ieee11.general_analogy,
+        generations=generations,
+        modulations=ieee11.modulations,
+        frequency_bands=frequency_bands
+    )
+
+def convert_transmission_to_graphql(trans: TransmissionMethod) -> GraphQLTransmissionMethods:
+    methods = [
+        GraphQLTransmissionMethod(
+            type=m.get("type", ""),
+            ratio=m.get("ratio", ""),
+            description=m.get("description", ""),
+            examples=m.get("examples", []),
+            address_example=m.get("address_example", "")
+        )
+        for m in trans.methods
+    ]
+    return GraphQLTransmissionMethods(
+        title=trans.title,
+        definition=trans.definition,
+        general_analogy=trans.general_analogy,
+        methods=methods
+    )
+
+
+# ============ QUERY ============
 
 @strawberry.type
 class Query:
@@ -123,173 +239,129 @@ class Query:
     def hello(self) -> str:
         return "Hello, World!"
     
+    # ===== Consultas individuales =====
     
     @strawberry.field
-    def get_protocolos_red(self) -> GraphQLProtocoloRedCompleto:
-        """Obtiene toda la información de Protocolos de Red"""
-        return convert_protocolo_to_graphql(protocoloRed)
+    def get_puertos_red(self) -> GraphQLPuertoRed:
+        """Obtiene toda la información de Puertos de Red"""
+        return convert_puertos_to_graphql(modelos.network_ports)
     
     @strawberry.field
-    def get_protocolo_title(self) -> str:
-        """Obtiene solo el título de Protocolos de Red"""
-        return protocoloRed.network_protocols.title
+    def get_sockets(self) -> GraphQLSocket:
+        """Obtiene toda la información de Sockets"""
+        return convert_sockets_to_graphql(modelos.sockets)
     
     @strawberry.field
-    def get_protocolo_types(self) -> List[GraphQLProtocoloRed_Type]:
-        """Obtiene todos los tipos de protocolos"""
-        return [
-            GraphQLProtocoloRed_Type(
-                category=t.category,
-                description=t.description,
-                examples=t.examples
-            )
-            for t in protocoloRed.network_protocols.types
-        ]
+    def get_ieee_802_3(self) -> GraphQLIEEE8023:
+        """Obtiene toda la información del estándar IEEE 802.3"""
+        return convert_8023_to_graphql(modelos.ieee_802_3)
     
     @strawberry.field
-    def get_protocolo_functions(self) -> List[GraphQLProtocoloRed_Function]:
-        """Obtiene todas las funciones de protocolos"""
-        return [
-            GraphQLProtocoloRed_Function(
-                name=f.name,
-                detail=f.detail
-            )
-            for f in protocoloRed.network_protocols.functions
-        ]
+    def get_ieee_802_11(self) -> GraphQLIEEE80211:
+        """Obtiene toda la información del estándar IEEE 802.11"""
+        return convert_80211_to_graphql(modelos.ieee_802_11)
     
     @strawberry.field
-    def get_protocolo_by_category(self, category: str) -> Optional[GraphQLProtocoloRed_Type]:
-        """Obtiene un tipo específico de protocolo por categoría"""
-        for tipo in protocoloRed.network_protocols.types:
-            if tipo.category.lower() == category.lower():
-                return GraphQLProtocoloRed_Type(
-                    category=tipo.category,
-                    description=tipo.description,
-                    examples=tipo.examples
-                )
-        return None
+    def get_transmission_methods(self) -> GraphQLTransmissionMethods:
+        """Obtiene toda la información de Métodos de Transmisión"""
+        return convert_transmission_to_graphql(modelos.transmission_methods)
     
+    # ===== Consulta completa (todos los temas juntos) =====
     
     @strawberry.field
-    def get_osi_model(self) -> GraphQLOsiModelCompleto:
-        """Obtiene toda la información del Modelo OSI"""
-        return convert_osi_to_graphql(modelo_osi)
-    
-    @strawberry.field
-    def get_osi_title(self) -> str:
-        """Obtiene solo el título del Modelo OSI"""
-        return modelo_osi.osi_model.title
-    
-    @strawberry.field
-    def get_osi_layers(self) -> List[GraphQLOsiLayer]:
-        """Obtiene todas las capas del Modelo OSI"""
-        return [
-            GraphQLOsiLayer(
-                level=l.level,
-                name=l.name,
-                function=l.function,
-                pdu=l.pdu,
-                examples=l.examples
-            )
-            for l in modelo_osi.osi_model.layers
-        ]
-    
-    @strawberry.field
-    def get_osi_layer_by_level(self, level: int) -> Optional[GraphQLOsiLayer]:
-        """Obtiene una capa específica del Modelo OSI por su nivel"""
-        for layer in modelo_osi.osi_model.layers:
-            if layer.level == level:
-                return GraphQLOsiLayer(
-                    level=layer.level,
-                    name=layer.name,
-                    function=layer.function,
-                    pdu=layer.pdu,
-                    examples=layer.examples
-                )
-        return None
-    
-    @strawberry.field
-    def get_osi_upper_layers(self) -> List[GraphQLOsiLayer]:
-        """Obtiene las capas superiores (5, 6, 7)"""
-        return [
-            GraphQLOsiLayer(
-                level=l.level,
-                name=l.name,
-                function=l.function,
-                pdu=l.pdu,
-                examples=l.examples
-            )
-            for l in modelo_osi.osi_model.layers
-            if l.level >= 5
-        ]
-    
-    @strawberry.field
-    def get_osi_lower_layers(self) -> List[GraphQLOsiLayer]:
-        """Obtiene las capas inferiores (1, 2, 3, 4)"""
-        return [
-            GraphQLOsiLayer(
-                level=l.level,
-                name=l.name,
-                function=l.function,
-                pdu=l.pdu,
-                examples=l.examples
-            )
-            for l in modelo_osi.osi_model.layers
-            if l.level <= 4
-        ]
-    
-    @strawberry.field
-    def get_osi_comparison(self) -> GraphQLTCPIPComparison:
-        """Obtiene la comparación con TCP/IP"""
-        return GraphQLTCPIPComparison(
-            note=modelo_osi.osi_model.tcp_ip_comparison.note,
-            key_difference=modelo_osi.osi_model.tcp_ip_comparison.key_difference
+    def get_all_redes_topics(self) -> GraphQLRedesInvestigacionCompleta:
+        """Obtiene toda la información de todos los temas de redes"""
+        return GraphQLRedesInvestigacionCompleta(
+            network_ports=convert_puertos_to_graphql(modelos.network_ports),
+            sockets=convert_sockets_to_graphql(modelos.sockets),
+            ieee_802_3=convert_8023_to_graphql(modelos.ieee_802_3),
+            ieee_802_11=convert_80211_to_graphql(modelos.ieee_802_11),
+            transmission_methods=convert_transmission_to_graphql(modelos.transmission_methods)
         )
     
+    # ===== Consultas específicas (filtros) =====
+    
     @strawberry.field
-    def search_osi_by_example(self, search_term: str) -> List[GraphQLOsiLayer]:
-        """Busca capas que contengan un ejemplo específico"""
-        result_layers = []
-        for layer in modelo_osi.osi_model.layers:
-            for example in layer.examples:
-                if search_term.lower() in example.lower():
-                    result_layers.append(
-                        GraphQLOsiLayer(
-                            level=layer.level,
-                            name=layer.name,
-                            function=layer.function,
-                            pdu=layer.pdu,
-                            examples=layer.examples
-                        )
-                    )
-                    break
-        return result_layers
+    def get_puerto_by_type(self, type_name: str) -> Optional[GraphQLPuertoClasificacion]:
+        """Obtiene una clasificación específica de puerto por nombre"""
+        for c in modelos.network_ports.classifications:
+            if c.get("type", "").lower() == type_name.lower():
+                return GraphQLPuertoClasificacion(
+                    type=c.get("type", ""),
+                    description=c.get("description", ""),
+                    range=c.get("range"),
+                    examples=c.get("examples", [])
+                )
+        return None
+    
+    @strawberry.field
+    def get_80211_by_standard(self, standard: str) -> Optional[GraphQLIEEE80211Generacion]:
+        """Obtiene una generación específica de Wi-Fi por su estándar"""
+        for g in modelos.ieee_802_11.generations:
+            if g.get("standard", "").lower() == standard.lower():
+                return GraphQLIEEE80211Generacion(
+                    standard=g.get("standard", ""),
+                    wi_fi_name=g.get("wi_fi_name"),
+                    year=str(g.get("year", "")),
+                    speed=g.get("speed", ""),
+                    frequency=g.get("frequency", ""),
+                    features=g.get("features"),
+                    status=g.get("status")
+                )
+        return None
+    
+    @strawberry.field
+    def get_transmission_by_type(self, method_type: str) -> Optional[GraphQLTransmissionMethod]:
+        """Obtiene un método de transmisión específico por su tipo"""
+        for m in modelos.transmission_methods.methods:
+            if m.get("type", "").lower() == method_type.lower():
+                return GraphQLTransmissionMethod(
+                    type=m.get("type", ""),
+                    ratio=m.get("ratio", ""),
+                    description=m.get("description", ""),
+                    examples=m.get("examples", []),
+                    address_example=m.get("address_example", "")
+                )
+        return None
 
+
+# ============ FASTAPI APP ============
 
 app = FastAPI(
-    title="API de Protocolos de Red y Modelo OSI",
-    description="API GraphQL para consultar información sobre Protocolos de Red y el Modelo OSI",
-    version="1.0.0"
+    title="API de Redes - Puertos, Sockets, IEEE Standards y Métodos de Transmisión",
+    description="API GraphQL para consultar información sobre temas fundamentales de redes",
+    version="2.0.0"
 )
 
 schema = strawberry.Schema(query=Query)
-
 graphql_app = GraphQLRouter(schema)
-
 app.include_router(graphql_app, prefix="/graphql")
+
 
 @app.get("/")
 def root():
     return {
-        "message": "API de Protocolos de Red y Modelo OSI",
+        "message": "API de Redes - Puertos, Sockets, IEEE 802.3, IEEE 802.11 y Métodos de Transmisión",
         "graphql_endpoint": "/graphql",
-        "docs": "Usa GraphQL para consultar los datos"
+        "available_queries": [
+            "get_puertos_red",
+            "get_sockets", 
+            "get_ieee_802_3",
+            "get_ieee_802_11",
+            "get_transmission_methods",
+            "get_all_redes_topics",
+            "get_puerto_by_type",
+            "get_80211_by_standard",
+            "get_transmission_by_type"
+        ]
     }
+
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "redes-api"}
+    return {"status": "healthy", "service": "redes-api-v2"}
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -1,0 +1,232 @@
+{
+  "network_ports": {
+    "title": "Definición y clasificación de Puertos de Red",
+    "definition": "Los puertos de red son identificadores numéricos (16 bits, del 0 al 65535) que permiten a un sistema operativo gestionar múltiples comunicaciones de red simultáneamente, diferenciando a qué aplicación o servicio debe entregarse cada paquete de datos.",
+    "general_analogy": "Imagina un gran edificio de apartamentos (el computador): los puertos físicos son las puertas de entrada al edificio, mientras que los puertos lógicos son los números de cada apartamento que permiten que la carta (dato) llegue al inquilino correcto (aplicación).",
+    "classifications": [
+      {
+        "type": "Puertos Físicos",
+        "description": "Interfaces de hardware visibles y conectables.",
+        "examples": ["RJ45", "USB", "HDMI", "Fiber optic ports"]
+      },
+      {
+        "type": "Puertos Lógicos",
+        "description": "Identificadores numéricos dentro del software de red (TCP/UDP). No son enchufes reales.",
+        "range": "0 - 65535"
+      },
+      {
+        "type": "Conocidos (Well-Known)",
+        "range": "0 - 1023",
+        "description": "Asignados por IANA a servicios estándar. Requieren privilegios de administrador.",
+        "examples": ["HTTP:80", "HTTPS:443", "SSH:22", "DNS:53"]
+      },
+      {
+        "type": "Registrados",
+        "range": "1024 - 49151",
+        "description": "Usados por aplicaciones de software comerciales o privadas.",
+        "examples": ["MySQL:3306", "MS SQL Server:1433", "Docker:2375"]
+      },
+      {
+        "type": "Dinámicos o Privados (Ephemeral)",
+        "range": "49152 - 65535",
+        "description": "Usados temporalmente por clientes para conexiones salientes.",
+        "examples": ["Puertos asignados automáticamente por el SO al navegar web"]
+      }
+    ]
+  },
+  "sockets": {
+    "title": "Definición y propiedades de Sockets",
+    "definition": "Un socket es el punto final de una conexión de red, definido matemáticamente por la tupla {Dirección IP, Puerto}. Representa una puerta de comunicación única entre una aplicación local y una remota.",
+    "general_analogy": "Si el puerto lógico es el número de un apartamento, el socket es la combinación única de 'dirección del edificio + número de apartamento' que le permite a dos personas concretas mantener una conversación privada.",
+    "properties": [
+      {
+        "name": "Identificador único",
+        "description": "Un socket local se representa como IP:Puerto. Un socket de conexión establecida es IP_origen:Puerto_origen, IP_destino:Puerto_destino."
+      },
+      {
+        "name": "Semidúplex o dúplex completo",
+        "description": "Permite comunicación bidireccional (enviar y recibir datos)."
+      },
+      {
+        "name": "Ciclo de vida",
+        "description": "socket() → bind() (opcional) → listen() (servidor) / connect() (cliente) → accept() → send()/recv() → close()"
+      }
+    ],
+    "types": [
+      {
+        "name": "Stream Sockets (TCP)",
+        "description": "Orientado a conexión, confiable, con control de flujo y orden de paquetes.",
+        "protocol": "TCP"
+      },
+      {
+        "name": "Datagram Sockets (UDP)",
+        "description": "Sin conexión, no confiable, pero de baja latencia.",
+        "protocol": "UDP"
+      },
+      {
+        "name": "Raw Sockets",
+        "description": "Acceso directo a protocolos de bajo nivel (ICMP, IGMP).",
+        "protocol": "ICMP, IGMP"
+      }
+    ]
+  },
+  "ieee_802_3": {
+    "title": "Estándar IEEE 802.3 (Ethernet)",
+    "definition": "Conocido como Ethernet, es el conjunto de estándares para redes LAN que define las capas física (señales, cables, conectores) y de enlace de datos (formato de trama, control de acceso al medio CSMA/CD históricamente).",
+    "general_analogy": "IEEE 802.3 es como el 'código de tránsito' para los autos (tramas de datos) que circulan por carreteras de cobre o fibra óptica, definiendo el tamaño del auto, las señales de alto (colisiones) y los carriles disponibles.",
+    "types": [
+      {
+        "name": "10BASE-T",
+        "speed": "10 Mbps",
+        "medium": "Par trenzado Cat3",
+        "max_distance": "100 m"
+      },
+      {
+        "name": "100BASE-TX (Fast Ethernet)",
+        "speed": "100 Mbps",
+        "medium": "Cat5 o superior",
+        "max_distance": "100 m"
+      },
+      {
+        "name": "1000BASE-T (Gigabit Ethernet)",
+        "speed": "1 Gbps",
+        "medium": "Cat5e/Cat6 (usa los 4 pares)",
+        "max_distance": "100 m"
+      },
+      {
+        "name": "10GBASE-T",
+        "speed": "10 Gbps",
+        "medium": "Cat6a/Cat7",
+        "max_distance": "30-100 m"
+      },
+      {
+        "name": "10GBASE-SR",
+        "speed": "10 Gbps",
+        "medium": "Fibra multimodo",
+        "max_distance": "300 m"
+      },
+      {
+        "name": "10GBASE-LR",
+        "speed": "10 Gbps",
+        "medium": "Fibra monomodo",
+        "max_distance": "10+ km"
+      },
+      {
+        "name": "40GBASE-SR4 / 100GBASE-SR10",
+        "speed": "40-100 Gbps",
+        "medium": "Fibra multimodo con conectores MPO",
+        "max_distance": "Centros de datos"
+      }
+    ],
+    "media_types": [
+      "Par trenzado UTP/STP con conectores RJ45",
+      "Fibra óptica multimodo y monomodo con conectores LC/SC/MPO",
+      "Backplane (cobre en chasis)"
+    ]
+  },
+  "ieee_802_11": {
+    "title": "Estándar IEEE 802.11 (Wi-Fi)",
+    "definition": "Conocido como Wi-Fi, es el estándar para redes inalámbricas WLAN que opera en las bandas de 2.4 GHz, 5 GHz y 6 GHz, utilizando acceso múltiple por detección de portadora con evitación de colisiones (CSMA/CA).",
+    "general_analogy": "IEEE 802.11 es como las reglas para una conversación por radio entre walkie-talkies (dispositivos), donde se acuerda qué frecuencia usar, cómo evitar pisarse al hablar (colisiones) y cómo cifrar la conversación para que nadie más la escuche.",
+    "generations": [
+      {
+        "standard": "802.11b",
+        "wi_fi_name": null,
+        "year": 1999,
+        "speed": "11 Mbps",
+        "frequency": "2.4 GHz",
+        "status": "Obsoleto"
+      },
+      {
+        "standard": "802.11a/g",
+        "wi_fi_name": null,
+        "year": 2003,
+        "speed": "54 Mbps",
+        "frequency": "a: 5 GHz, g: 2.4 GHz",
+        "status": "Obsoleto"
+      },
+      {
+        "standard": "802.11n",
+        "wi_fi_name": "Wi-Fi 4",
+        "year": 2009,
+        "speed": "600 Mbps",
+        "frequency": "2.4 y 5 GHz",
+        "features": ["MIMO"]
+      },
+      {
+        "standard": "802.11ac",
+        "wi_fi_name": "Wi-Fi 5",
+        "year": 2013,
+        "speed": "3.5 Gbps",
+        "frequency": "5 GHz",
+        "features": ["MU-MIMO", "Canales 80/160 MHz"]
+      },
+      {
+        "standard": "802.11ax",
+        "wi_fi_name": "Wi-Fi 6/6E",
+        "year": 2019,
+        "speed": "9.6 Gbps",
+        "frequency": "2.4, 5 y 6 GHz (6E)",
+        "features": ["OFDMA", "Menor congestión"]
+      },
+      {
+        "standard": "802.11be",
+        "wi_fi_name": "Wi-Fi 7",
+        "year": "En desarrollo",
+        "speed": "46 Gbps",
+        "frequency": "2.4, 5 y 6 GHz",
+        "features": ["320 MHz de canal", "16x16 MU-MIMO"]
+      }
+    ],
+    "modulations": ["DSSS", "OFDM", "OFDMA"],
+    "frequency_bands": [
+      {
+        "band": "2.4 GHz",
+        "characteristics": "Mayor alcance, más interferencia (microondas, Bluetooth, otros routers)"
+      },
+      {
+        "band": "5 GHz",
+        "characteristics": "Menor alcance, más canales disponibles, menos congestión"
+      },
+      {
+        "band": "6 GHz",
+        "characteristics": "Wi-Fi 6E/7, espectro limpio, muy alta velocidad"
+      }
+    ]
+  },
+  "transmission_methods": {
+    "title": "Métodos de transmisión de datos",
+    "definition": "Son las estrategias de direccionamiento en red que determinan cuántos y cuáles receptores obtendrán un paquete de datos desde una única fuente.",
+    "general_analogy": "Imagina que tienes un mensaje que enviar: Unicast es una carta personal a un solo amigo; Broadcast es un megáfono anunciando algo a toda la ciudad; Multicast es una suscripción a una revista donde solo los miembros del club la reciben.",
+    "methods": [
+      {
+        "type": "Unicast",
+        "ratio": "1:1",
+        "description": "Comunicación uno a uno. El paquete tiene una dirección MAC o IP de destino específica.",
+        "examples": ["Abrir una página web", "Transferencia FTP", "Correo electrónico personal"],
+        "address_example": "MAC específica o IP única"
+      },
+      {
+        "type": "Broadcast",
+        "ratio": "1:Todos (dominio de difusión)",
+        "description": "Comunicación uno a todos los dispositivos en un segmento de red. No atraviesa routers.",
+        "examples": ["Solicitud ARP para encontrar una IP", "DHCP Discover"],
+        "address_example": "MAC: FF:FF:FF:FF:FF:FF, IP: 255.255.255.255"
+      },
+      {
+        "type": "Multicast",
+        "ratio": "1:Grupo específico",
+        "description": "Comunicación uno a muchos suscriptores. Los paquetes solo llegan a quienes se unieron al grupo.",
+        "examples": ["Videoconferencia", "IPTV", "Streaming en vivo", "Enrutamiento multicast (PIM)"],
+        "address_example": "IP clase D (224.0.0.0 - 239.255.255.255), MAC 01:00:5E:xx:xx:xx"
+      },
+      {
+        "type": "Anycast",
+        "ratio": "1:Uno dentro del grupo (el más cercano)",
+        "description": "Comunicación donde el paquete se entrega al nodo más cercano desde el punto de vista del enrutamiento, entre varios que comparten la misma IP.",
+        "examples": ["Servidores raíz DNS", "CDNs (Content Delivery Networks)"],
+        "address_example": "Una misma IP anunciada desde múltiples ubicaciones"
+      }
+    ]
+  }
+}
